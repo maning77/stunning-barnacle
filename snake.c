@@ -1,19 +1,28 @@
+/*
+ * è´ªåƒè›‡ï¼ˆSnakeï¼‰â€”â€” Windows æ§åˆ¶å°ç‰ˆ
+ * æ“ä½œè¯´æ˜ï¼šW/S/A/D æ§åˆ¶æ–¹å‘ï¼ŒX é€€å‡º
+ *
+ * ã€ä¿®æ”¹è®°å½•ã€‘
+ * 2026-09-07 v1 æ–°å¢ï¼šâ‘  æ–‡ä»¶å¤´è¯´æ˜ä¸ä¿®æ”¹è®°å½•æ³¨é‡Š
+ *                   â‘¡ ä¿®å¤æ¯æ¬¡é£Ÿç‰©ä½ç½®ç›¸åŒçš„é—®é¢˜ï¼ˆæ·»åŠ éšæœºç§å­ srandï¼‰
+ */
 #include <stdio.h>
 #include <windows.h>
 #include <conio.h>
+#include <time.h>
 
 #define WIDTH 20
 #define HEIGHT 20
 
-// ÉßÉíÌå×ø±ê
+// è›‡èº«ä½“åæ ‡
 int snakeX[100], snakeY[100];
 int len = 3;
 int foodX, foodY;
-int dir = 2; // 1ÉÏ 2ÓÒ 3ÏÂ 4×ó
+int dir = 2; // 1ä¸Š 2å³ 3ä¸‹ 4å·¦
 int gameOver = 0;
 int score = 0;
 
-// ÉèÖÃ¹â±êÎ»ÖÃ
+// è®¾ç½®å…‰æ ‡ä½ç½®
 void gotoxy(int x, int y) {
     COORD pos;
     pos.X = x;
@@ -21,7 +30,7 @@ void gotoxy(int x, int y) {
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 }
 
-// Òş²Ø¹â±ê
+// éšè—å…‰æ ‡
 void hideCursor() {
     CONSOLE_CURSOR_INFO cursor;
     cursor.dwSize = 1;
@@ -29,13 +38,13 @@ void hideCursor() {
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursor);
 }
 
-// Éú³ÉÊ³Îï
+// ç”Ÿæˆé£Ÿç‰©
 void createFood() {
     foodX = rand() % (WIDTH - 2) + 1;
     foodY = rand() % (HEIGHT - 2) + 1;
 }
 
-// ³õÊ¼»¯ÓÎÏ·
+// åˆå§‹åŒ–æ¸¸æˆ
 void init() {
     gameOver = 0;
     dir = 2;
@@ -47,14 +56,15 @@ void init() {
     snakeY[1] = HEIGHT / 2;
     snakeX[2] = WIDTH / 2 - 2;
     snakeY[2] = HEIGHT / 2;
+    srand((unsigned)time(NULL)); // è®¾ç½®éšæœºç§å­ï¼Œä¿è¯æ¯æ¬¡é£Ÿç‰©ä½ç½®ä¸åŒ
     createFood();
     hideCursor();
 }
 
-// »æÖÆ»­Ãæ
+// ç»˜åˆ¶ç”»é¢
 void draw() {
     gotoxy(0,0);
-    // ÉÏ±ß¿ò
+    // ä¸Šè¾¹æ¡†
     for(int i = 0; i < WIDTH; i++) printf("#");
     printf("\n");
 
@@ -63,12 +73,12 @@ void draw() {
             if(x == 0 || x == WIDTH -1) {
                 printf("#");
             } else if(x == snakeX[0] && y == snakeY[0]) {
-                printf("O"); //ÉßÍ·
+                printf("O"); //è›‡å¤´
             } else {
                 int isBody = 0;
                 for(int i = 1; i < len; i++) {
                     if(snakeX[i]==x && snakeY[i]==y) {
-                        printf("o");//ÉßÉíÌå
+                        printf("o");//è›‡èº«ä½“
                         isBody = 1;
                         break;
                     }
@@ -84,13 +94,13 @@ void draw() {
         }
         printf("\n");
     }
-    //ÏÂ±ß¿ò
+    //ä¸‹è¾¹æ¡†
     for(int i = 0; i < WIDTH; i++) printf("#");
     printf("\n");
-    printf("·ÖÊı£º%d  ·½Ïò£ºWÉÏ SÏÂ A×ó DÓÒ, XÍË³ö\n", score);
+    printf("åˆ†æ•°ï¼š%d  æ–¹å‘ï¼šWä¸Š Sä¸‹ Aå·¦ Då³, Xé€€å‡º\n", score);
 }
 
-// ¼üÅÌÊäÈë
+// é”®ç›˜è¾“å…¥
 void input() {
     if(_kbhit()) {
         switch(_getch()) {
@@ -103,9 +113,9 @@ void input() {
     }
 }
 
-// ÉßÂß¼­¸üĞÂ
+// è›‡é€»è¾‘æ›´æ–°
 void logic() {
-    //ÉíÌå¸úËæ
+    //èº«ä½“è·Ÿéš
     int preX = snakeX[0];
     int preY = snakeY[0];
     int tempX, tempY;
@@ -121,17 +131,17 @@ void logic() {
         preY = tempY;
     }
 
-    //×²Ç½
+    //æ’å¢™
     if(snakeX[0]<=0 || snakeX[0]>=WIDTH-1 || snakeY[0]<=0 || snakeY[0]>=HEIGHT-1) {
         gameOver = 1;
     }
-    //×²µ½×Ô¼º
+    //æ’åˆ°è‡ªå·±
     for(int i = 1; i < len; i++) {
         if(snakeX[0]==snakeX[i] && snakeY[0]==snakeY[i]) {
             gameOver = 1;
         }
     }
-    //³Ôµ½Ê³Îï
+    //åƒåˆ°é£Ÿç‰©
     if(snakeX[0]==foodX && snakeY[0]==foodY) {
         score += 10;
         len++;
@@ -145,9 +155,9 @@ int main() {
         draw();
         input();
         logic();
-        Sleep(120); // ¿ØÖÆËÙ¶È
+        Sleep(120); // æ§åˆ¶é€Ÿåº¦
     }
     gotoxy(0, HEIGHT+2);
-    printf("ÓÎÏ·½áÊø£¡×îÖÕ·ÖÊı£º%d\n", score);
+    printf("æ¸¸æˆç»“æŸï¼æœ€ç»ˆåˆ†æ•°ï¼š%d\n", score);
     return 0;
 }
