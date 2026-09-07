@@ -5,6 +5,7 @@
  * 【修改记录】
  * 2026-09-07 v1 新增：① 文件头说明与修改记录注释
  *                   ② 修复每次食物位置相同的问题（添加随机种子 srand）
+ * 2026-09-07 v2 新增：P 键暂停 / 继续游戏
  */
 #include <stdio.h>
 #include <windows.h>
@@ -21,6 +22,7 @@ int foodX, foodY;
 int dir = 2; // 1上 2右 3下 4左
 int gameOver = 0;
 int score = 0;
+int paused = 0;   // 暂停状态：1=暂停中 0=运行
 
 // 设置光标位置
 void gotoxy(int x, int y) {
@@ -50,6 +52,7 @@ void init() {
     dir = 2;
     len = 3;
     score = 0;
+    paused = 0;
     snakeX[0] = WIDTH / 2;
     snakeY[0] = HEIGHT / 2;
     snakeX[1] = WIDTH / 2 - 1;
@@ -97,7 +100,10 @@ void draw() {
     //下边框
     for(int i = 0; i < WIDTH; i++) printf("#");
     printf("\n");
-    printf("分数：%d  方向：W上 S下 A左 D右, X退出\n", score);
+    if(paused)
+        printf("分数：%d   [已暂停] 按 P 继续游戏   X退出\n", score);
+    else
+        printf("分数：%d  方向：W上 S下 A左 D右  P暂停 X退出\n", score);
 }
 
 // 键盘输入
@@ -108,6 +114,7 @@ void input() {
             case 's': if(dir !=1) dir = 3; break;
             case 'a': if(dir !=2) dir = 4; break;
             case 'd': if(dir !=4) dir = 2; break;
+            case 'p': paused = !paused; break; // P 暂停/继续
             case 'x': gameOver = 1; break;
         }
     }
@@ -115,6 +122,8 @@ void input() {
 
 // 蛇逻辑更新
 void logic() {
+    if(paused) return;   // 暂停中不更新游戏逻辑
+
     //身体跟随
     int preX = snakeX[0];
     int preY = snakeY[0];
